@@ -14,7 +14,7 @@ python -m venv venv
 - python version 3.10 o mayor
 - install sqlite
 
-### Start HTT server
+### Start HTTP server
 
 - fastapi dev main.py
 - HTTP server en localhost, port 8000
