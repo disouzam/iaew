@@ -18,3 +18,4 @@ python -m venv venv
 
 - fastapi dev main.py
 - HTTP server en localhost, port 8000
+- http://localhost:8000/docs
