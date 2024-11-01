@@ -1,6 +1,6 @@
 # IAEW 2024 5K4
 
-## Installing guide
+## Installation guide
 
 ### Crear un entorno virtual  
 
