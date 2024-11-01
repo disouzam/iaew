@@ -30,9 +30,9 @@ app = FastAPI()
 
 
 @app.post("/api/v1/pedido")
-def create_pedido(reservation: PedidoBase):
+def create_pedido(pedido: PedidoBase):
     with Session(engine) as session:
-        db_pedido = Pedido.model_validate(reservation)
+        db_pedido = Pedido.model_validate(pedido)
         session.add(db_pedido)
         session.commit()
         session.refresh(db_pedido)
