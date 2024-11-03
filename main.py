@@ -4,6 +4,8 @@ import uuid
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 from sqlmodel import Field, SQLModel, create_engine, Session, select
+import rabbitmq as rb
+import json
 
 class Producto(BaseModel):
     producto: str = Field(default=uuid.uuid4())
@@ -37,6 +39,19 @@ def create_pedido(pedido: PedidoBase):
         session.commit()
         session.refresh(db_pedido)
         return db_pedido
+    
+@app.post("/api/v1/producer")
+def publish_pedido(body: str):
+    try:
+        msg = json.loads(body)
+        result = rb.send_message(msg=body)
+        if not bool(result[0]):
+            msg = {"RabbitMQ": result[1]}
+        return msg
+    except json.JSONDecodeError:
+        return  {"error": "Error al decodificar formato JSON"}
+    except Exception as err:
+        return {"error: ",str (err)}
     
 @app.get("/api/v1/pedidos")
 def read_pedidos():
