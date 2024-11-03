@@ -26,9 +26,7 @@ app = FastAPI(title="IAEW", description="REST Full API TP - Grupo 1 - 2024", ver
 
 sqlite_file_name = "iaew.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
-
 engine = create_engine(sqlite_url, echo=True)
-
 SQLModel.metadata.create_all(engine)
 
 @app.post("/api/v1/pedido")
