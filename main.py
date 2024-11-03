@@ -28,7 +28,8 @@ engine = create_engine(sqlite_url, echo=True)
 
 SQLModel.metadata.create_all(engine)
 
-app = FastAPI()
+#app = FastAPI()
+app = FastAPI(title="IAEW", description="REST Full API TP - Grupo 1 - 2024", version="1.0.0")
 
 
 @app.post("/api/v1/pedido")
@@ -51,7 +52,7 @@ def publish_pedido(body: str):
     except json.JSONDecodeError:
         return  {"error": "Error al decodificar formato JSON"}
     except Exception as err:
-        return {"error: ",str (err)}
+        return {"error": str (err)}
     
 @app.get("/api/v1/pedidos")
 def read_pedidos():
