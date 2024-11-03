@@ -21,16 +21,15 @@ class Pedido(PedidoBase, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
     userid: str = Field(default_factory=lambda: str(uuid.uuid4()))
 
+
+app = FastAPI(title="IAEW", description="REST Full API TP - Grupo 1 - 2024", version="1.0.0")
+
 sqlite_file_name = "iaew.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
 engine = create_engine(sqlite_url, echo=True)
 
 SQLModel.metadata.create_all(engine)
-
-#app = FastAPI()
-app = FastAPI(title="IAEW", description="REST Full API TP - Grupo 1 - 2024", version="1.0.0")
-
 
 @app.post("/api/v1/pedido")
 def create_pedido(pedido: PedidoBase):
@@ -50,9 +49,9 @@ def publish_pedido(body: str):
             msg = {"RabbitMQ": result[1]}
         return msg
     except json.JSONDecodeError:
-        return  {"error": "Error al decodificar formato JSON"}
+        return  {"API": "Error al decodificar formato JSON"}
     except Exception as err:
-        return {"error": str (err)}
+        return {"API": str (err)}
     
 @app.get("/api/v1/pedidos")
 def read_pedidos():
