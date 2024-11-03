@@ -12,7 +12,7 @@ def publish_message(message, queue_name=used_queue, host='localhost') -> None:
         channel.queue_declare(queue=queue_name)
         channel.basic_publish(exchange='', routing_key=queue_name, body=message)
 
-def send_message(msg: str) -> set:
+def send_message(msg: str) -> tuple[bool,str]:
     status = False
     try:
         publish_message(msg)
