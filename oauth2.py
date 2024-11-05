@@ -61,7 +61,7 @@ class Autenticator:
         expiration_timestamp = payload.get('exp')
         
         if expiration_timestamp is None:
-            raise ValueError("Expiration timestamp 'exp' is missing from payload")
+            raise ValueError("Expiration timestamp 'exp' no esxiste en el payload")
         
         #exp_time = datetime.datetime.fromtimestamp(expiration_timestamp, tz=timezone)
         exp_time = exp_datetime = datetime.datetime.fromtimestamp(expiration_timestamp, datetime.timezone.utc)
