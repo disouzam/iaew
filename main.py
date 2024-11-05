@@ -109,13 +109,11 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 @app.get("/api/v1/costo",tags=["Sólo Documentación (user Postman con Auth2.0)"])
 async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
-    # credentials_exception = HTTPException(
-    #     status_code=status.HTTP_401_UNAUTHORIZED,
-    #     detail="Could not validate credentials",
-    #     headers={"WWW-Authenticate": "Bearer"},
-    # )
-    credentials_exception = excepcion("Could not validate credentials") 
-    
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    ) 
     try:
         payload = jwt.decode(token, Autenticator.SECRET_KEY, algorithms=[Autenticator.ALGORITHM])
         username: str = payload.get("sub")
@@ -127,20 +125,18 @@ async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
         # if expirated_token:
         #    raise credentials_exception
     except jwt.PyJWTError as error:
-        credentials_exception = excepcion(error)
-        # credentials_exception = HTTPException(
-        # status_code=status.HTTP_401_UNAUTHORIZED,
-        # detail=str(error),
-        # headers={"WWW-Authenticate": "Bearer"},
-        # )
+        credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=str(error),
+        headers={"WWW-Authenticate": "Bearer"},
+        )
         raise credentials_exception
     except jwt.ExpiredSignatureError as error:
-        credentials_exception = excepcion(error)
-        # credentials_exception = HTTPException(
-        # status_code=status.HTTP_401_UNAUTHORIZED,
-        # detail=str(error),
-        # headers={"WWW-Authenticate": "Bearer"},
-        # )
+        credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=str(error),
+        headers={"WWW-Authenticate": "Bearer"},
+        )
         raise credentials_exception
     user = DataBase.users_db.get(token_data.username)
     
@@ -152,11 +148,3 @@ async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
         for reg in reistros_pedidos:
             list_pedidos.append({"pedidoId": reg.id, "userId":reg.userid, "producto":reg.producto, "creacion":reg.creacion, "total":reg.total, "costo": reg.costo})
     return list_pedidos
-
-def excepcion(msg: str) -> HTTPException:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail=msg,
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    return credentials_exception
