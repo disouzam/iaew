@@ -107,7 +107,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = Autenticator.create_access_token({"sub": user['username']}, local_timezone, access_token_expires)
     return {"access_token": access_token, "token_type": "Bearer"}
 
-@app.get("/api/v1/costo",tags=["Sólo Documentación"])
+@app.get("/api/v1/costo",tags=["Sólo Documentación (user Postman con Auth2.0)"])
 async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
     # credentials_exception = HTTPException(
     #     status_code=status.HTTP_401_UNAUTHORIZED,
