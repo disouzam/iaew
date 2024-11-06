@@ -67,31 +67,44 @@ def publish_pedido(body: str):
     try:
         msg = json.loads(body)
         result = rb.send_message(msg=body)
-        if not bool(result[0]):
-            msg = {"RabbitMQ": result[1]}
+        success, response_message = result
+        if not success:
+            msg = {"RabbitMQ": response_message}
         return msg
     except json.JSONDecodeError:
-        return  {"API": "Error al decodificar formato JSON"}
+        raise HTTPException(status_code=400, detail="Error al decodificar formato JSON")
     except Exception as err:
-        return {"API": str (err)}
+        raise HTTPException(status_code=500, detail=str(err))
     
-@app.get("/api/v1/pedidos",tags=["Métodos principales"])
+@app.get("/api/v1/pedidos", tags=["Métodos principales"])
 def read_pedidos():
-    list_pedidos = []
     with Session(engine) as session:
-        reistros_pedidos = session.exec(select(Pedido)).all()
-        for reg in reistros_pedidos:
-            list_pedidos.append({"pedidoId": reg.id, "userId":reg.userid, "producto":reg.producto, "creacion":reg.creacion, "total":reg.total})
-        return list_pedidos
+        registros_pedidos = session.exec(select(Pedido)).all()
+        return [
+            {
+                "pedidoId": reg.id,
+                "userId": reg.userid,
+                "producto": reg.producto,
+                "creacion": reg.creacion,
+                "total": reg.total
+            }
+            for reg in registros_pedidos
+        ]
 
-@app.get("/api/v1/pedidos/{id}",tags=["Métodos principales"])
+@app.get("/api/v1/pedidos/{id}", tags=["Métodos principales"])
 async def pedidos_by_id(id: str):
     with Session(engine) as session:
-        pedidos = session.exec(select(Pedido)).all()
+        pedido = session.exec(select(Pedido).where(Pedido.id == id)).one_or_none()
+
+    if pedido:
+        return {
+            "pedidoId": pedido.id,
+            "userId": pedido.userid,
+            "producto": pedido.producto,
+            "creacion": pedido.creacion,
+            "total": pedido.total
+        }
     
-    for reg in pedidos:
-        if reg.id == id:
-            return {"pedidoId": reg.id, "userId":reg.userid, "producto":reg.producto, "creacion":reg.creacion, "total":reg.total}
     raise HTTPException(status_code=404, detail="El pedido no existe")
 
 @app.post("/api/v1/token", response_model=Token,tags=["Métodos principales"])
@@ -107,44 +120,41 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = Autenticator.create_access_token({"sub": user['username']}, local_timezone, access_token_expires)
     return {"access_token": access_token, "token_type": "Bearer"}
 
-@app.get("/api/v1/costo",tags=["Sólo Documentación (user Postman con Auth2.0)"])
+@app.get("/api/v1/costo", tags=["Sólo Documentación (user Postman con Auth2.0)"])
 async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    ) 
+    def raise_credentials_exception(detail: str):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=detail,
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     try:
         payload = jwt.decode(token, Autenticator.SECRET_KEY, algorithms=[Autenticator.ALGORITHM])
         username: str = payload.get("sub")
-        user = Autenticator.authentication(DataBase.users_db, username)
+        
         if not username:
-            raise credentials_exception
+            raise_credentials_exception("Could not validate credentials")
+        
+        user = Autenticator.authentication(DataBase.users_db, username)
         token_data = User(username=username)
-        # expirated_token = Autenticator.validate_expiration(payload)
-        # if expirated_token:
-        #    raise credentials_exception
-    except jwt.PyJWTError as error:
-        credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail=str(error),
-        headers={"WWW-Authenticate": "Bearer"},
-        )
-        raise credentials_exception
-    except jwt.ExpiredSignatureError as error:
-        credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail=str(error),
-        headers={"WWW-Authenticate": "Bearer"},
-        )
-        raise credentials_exception
+    except (jwt.PyJWTError, jwt.ExpiredSignatureError) as error:
+        raise_credentials_exception(str(error))
+
     user = DataBase.users_db.get(token_data.username)
     
     if not user:
-        raise credentials_exception
-    list_pedidos = []
+        raise_credentials_exception("Could not validate credentials")
+
     with Session(engine) as session:
-        reistros_pedidos = session.exec(select(Pedido)).all()
-        for reg in reistros_pedidos:
-            list_pedidos.append({"pedidoId": reg.id, "userId":reg.userid, "producto":reg.producto, "creacion":reg.creacion, "total":reg.total, "costo": reg.costo})
+        registros_pedidos = session.exec(select(Pedido)).all()
+        list_pedidos = [{
+            "pedidoId": reg.id,
+            "userId": reg.userid,
+            "producto": reg.producto,
+            "creacion": reg.creacion,
+            "total": reg.total,
+            "costo": reg.costo
+        } for reg in registros_pedidos]
+
     return list_pedidos

@@ -16,6 +16,6 @@ python -m venv venv
 
 ### Start HTTP server
 
-- fastapi dev main.py
+- uvicorn main:app --reload
 - HTTP server en localhost, port 8000
 - http://localhost:8000/docs
