@@ -140,7 +140,7 @@ async def pedidos_by_id(id: str):
     raise HTTPException(status_code=404, detail="El pedido no existe")
 
 
-@app.post("/api/v1/token", response_model=Token,tags=["Métodos principales"])
+@app.post("/api/v1/token", response_model=Token, tags=["Métodos principales"])
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = Autenticator.authentication(DataBase.users_db, form_data.username, form_data.password)
     if not user:
