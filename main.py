@@ -16,7 +16,8 @@ from enum import Enum
 import re
 
 local_timezone = pytz.timezone('America/Argentina/Buenos_Aires')
-# Annotated for ListToStr objects
+
+# Annotated para usar en ValidateListToStr
 T = TypeVar('T')
 ValidList = Annotated[list[T], AfterValidator(ValidateListToStr.convert_list_to_str)]
 
@@ -49,10 +50,13 @@ app = FastAPI(title="IAEW", description="REST Full API TP - Grupo 1 - 2024", ver
 # Dependencia para el esquema de autenticación
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+# Objetos de SQLite y el ORM
 sqlite_file_name = "iaew.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 engine = create_engine(sqlite_url, echo=True)
 SQLModel.metadata.create_all(engine)
+
+# Rutas
 
 @app.post("/api/v1/pedido", tags=["Métodos principales"])
 def create_pedido(pedido: ProductoBase):
@@ -82,6 +86,7 @@ def create_pedido(pedido: ProductoBase):
         
         return db_output
 
+
 @app.post("/api/v1/producer",tags=["Métodos principales"])
 def publish_pedido(body: str):
     try:
@@ -96,6 +101,7 @@ def publish_pedido(body: str):
     except Exception as err:
         raise HTTPException(status_code=500, detail=str(err))
     
+
 @app.get("/api/v1/pedidos", tags=["Métodos principales"])
 def read_pedidos() -> List[dict]:
     with Session(engine) as session:
@@ -116,6 +122,7 @@ def read_pedidos() -> List[dict]:
 
         return db_output
 
+
 @app.get("/api/v1/pedidos/{id}", tags=["Métodos principales"])
 async def pedidos_by_id(id: str):
     with Session(engine) as session:
@@ -132,6 +139,7 @@ async def pedidos_by_id(id: str):
     
     raise HTTPException(status_code=404, detail="El pedido no existe")
 
+
 @app.post("/api/v1/token", response_model=Token,tags=["Métodos principales"])
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = Autenticator.authentication(DataBase.users_db, form_data.username, form_data.password)
@@ -144,6 +152,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token_expires = datetime.timedelta(minutes=Autenticator.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = Autenticator.create_access_token({"sub": user['username']}, local_timezone, access_token_expires)
     return {"access_token": access_token, "token_type": "Bearer"}
+
 
 @app.get("/api/v1/costo", tags=["Sólo Documentación (user Postman con Auth2.0)"])
 async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
@@ -173,13 +182,19 @@ async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
 
     with Session(engine) as session:
         registros_pedidos = session.exec(select(Pedido)).all()
-        list_pedidos = [{
-            "pedidoId": reg.id,
-            "userId": reg.userid,
-            "producto": reg.producto,
+
+        def parse_productos(produc: str) -> List[dict]:
+            pattern = re.compile(r"Producto\(producto='(.*?)', cantidad=(.*?)\)")
+            return [{"producto": match.group(1), "cantidad": float(match.group(2))}
+                    for match in pattern.finditer(produc)]
+        
+        db_output = [{
+            "id": reg.id,
+            "userid": reg.userid,
+            "producto": parse_productos(reg.producto),
             "creacion": reg.creacion,
             "total": reg.total,
             "costo": reg.costo
         } for reg in registros_pedidos]
 
-    return list_pedidos
+    return db_output
