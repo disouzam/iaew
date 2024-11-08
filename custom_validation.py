@@ -51,5 +51,6 @@ class ValidateListToStr():
     @classmethod
     @validate_call
     def convert_list_to_str(cls, lista: list) -> str:
+        
         return str(lista)
         

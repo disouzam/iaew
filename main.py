@@ -10,9 +10,10 @@ import json
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import jwt
 import pytz
-from typing import TypeVar, Annotated
+from typing import TypeVar, Annotated, List
 from custom_validation import ValidateListToStr
 from enum import Enum
+import re
 
 local_timezone = pytz.timezone('America/Argentina/Buenos_Aires')
 # Annotated for ListToStr objects
@@ -55,13 +56,32 @@ SQLModel.metadata.create_all(engine)
 
 @app.post("/api/v1/pedido", tags=["Métodos principales"])
 def create_pedido(pedido: ProductoBase):
+    def extrae_productos(producto_string: str):
+        pattern = re.compile(r"Producto\(producto='(.*?)', cantidad=(.*?)\)")
+        return [
+            {"producto": match.group(1), "cantidad": float(match.group(2))}
+            for match in pattern.finditer(producto_string)
+        ]
+
+    def create_db_output(db_pedido, productos):
+        return {
+            "id": db_pedido.id,
+            "userid": db_pedido.userid,
+            "producto": productos,
+            "creacion": db_pedido.creacion,
+            "total": db_pedido.total
+        }
+    
     with Session(engine) as session:
         db_pedido = Pedido.model_validate(pedido)
+        productos = extrae_productos(db_pedido.producto)
+        db_output = create_db_output(db_pedido, productos)
         session.add(db_pedido)
         session.commit()
         session.refresh(db_pedido)
-        return db_pedido
-    
+        
+        return db_output
+
 @app.post("/api/v1/producer",tags=["Métodos principales"])
 def publish_pedido(body: str):
     try:
@@ -77,19 +97,24 @@ def publish_pedido(body: str):
         raise HTTPException(status_code=500, detail=str(err))
     
 @app.get("/api/v1/pedidos", tags=["Métodos principales"])
-def read_pedidos():
+def read_pedidos() -> List[dict]:
     with Session(engine) as session:
         registros_pedidos = session.exec(select(Pedido)).all()
-        return [
-            {
-                "pedidoId": reg.id,
-                "userId": reg.userid,
-                "producto": reg.producto,
-                "creacion": reg.creacion,
-                "total": reg.total
-            }
-            for reg in registros_pedidos
-        ]
+
+        def parse_productos(produc: str) -> List[dict]:
+            pattern = re.compile(r"Producto\(producto='(.*?)', cantidad=(.*?)\)")
+            return [{"producto": match.group(1), "cantidad": float(match.group(2))}
+                    for match in pattern.finditer(produc)]
+        
+        db_output = [{
+            "id": reg.id,
+            "userid": reg.userid,
+            "producto": parse_productos(reg.producto),
+            "creacion": reg.creacion,
+            "total": reg.total
+        } for reg in registros_pedidos]
+
+        return db_output
 
 @app.get("/api/v1/pedidos/{id}", tags=["Métodos principales"])
 async def pedidos_by_id(id: str):
