@@ -58,8 +58,8 @@ SQLModel.metadata.create_all(engine)
 
 # Body to publish by publisher
 for_publishing = {
-        'id': '880e8400-e29b-41d4-a716-446655440000',
-        'usuarid': '550e8400-e29b-41d4-a716-446655440000',
+        'pedidoId': '880e8400-e29b-41d4-a716-446655440000',
+        'userId': '550e8400-e29b-41d4-a716-446655440000',
         'producto': [
             {
             'producto': '770e8400-e29b-41d4-a716-446655440000',
@@ -82,8 +82,8 @@ def create_pedido(pedido: ProductoBase):
 
     def create_db_output(db_pedido, productos):
         return {
-            "id": db_pedido.id,
-            "userid": db_pedido.userid,
+            "pedidoId": db_pedido.id,
+            "userId": db_pedido.userid,
             "producto": productos,
             "creacion": db_pedido.creacion,
             "total": db_pedido.total
@@ -128,8 +128,8 @@ def read_pedidos() -> List[dict]:
                     for match in pattern.finditer(produc)]
         
         db_output = [{
-            "id": reg.id,
-            "userid": reg.userid,
+            "pedidoId": reg.id,
+            "userId": reg.userid,
             "producto": parse_productos(reg.producto),
             "creacion": reg.creacion,
             "total": reg.total
@@ -204,8 +204,8 @@ async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
                     for match in pattern.finditer(produc)]
         
         db_output = [{
-            "id": reg.id,
-            "userid": reg.userid,
+            "pedidoId": reg.id,
+            "userId": reg.userid,
             "producto": parse_productos(reg.producto),
             "creacion": reg.creacion,
             "total": reg.total,
