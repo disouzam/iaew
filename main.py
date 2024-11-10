@@ -72,32 +72,8 @@ for_publishing = {
 
 # Rutas
 @app.post("/api/v1/pedido", tags=["Métodos principales"])
-def create_pedido(pedido: ProductoBase):
-    def extrae_productos(producto_string: str):
-        pattern = re.compile(r"Producto\(producto='(.*?)', cantidad=(.*?)\)")
-        return [
-            {"producto": match.group(1), "cantidad": float(match.group(2))}
-            for match in pattern.finditer(producto_string)
-        ]
-
-    def create_db_output(db_pedido, productos):
-        return {
-            "pedidoId": db_pedido.id,
-            "userId": db_pedido.userid,
-            "producto": productos,
-            "creacion": db_pedido.creacion,
-            "total": db_pedido.total
-        }
-    
-    with Session(engine) as session:
-        db_pedido = Pedido.model_validate(pedido)
-        productos = extrae_productos(db_pedido.producto)
-        db_output = create_db_output(db_pedido, productos)
-        session.add(db_pedido)
-        session.commit()
-        session.refresh(db_pedido)
-        
-        return db_output
+def create_pedido(pedido: PedidoBase):
+    return _create_pedido(pedido)
 
 
 @app.post("/api/v1/producer",tags=["Métodos principales"])
@@ -213,3 +189,30 @@ async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
         } for reg in registros_pedidos]
 
     return db_output
+
+def _create_pedido(pedido: ProductoBase):
+    def extrae_productos(producto_string: str):
+        pattern = re.compile(r"Producto\(producto='(.*?)', cantidad=(.*?)\)")
+        return [
+            {"producto": match.group(1), "cantidad": float(match.group(2))}
+            for match in pattern.finditer(producto_string)
+        ]
+
+    def create_db_output(db_pedido, productos):
+        return {
+            "pedidoId": db_pedido.id,
+            "userId": db_pedido.userid,
+            "producto": productos,
+            "creacion": db_pedido.creacion,
+            "total": db_pedido.total
+        }
+    
+    with Session(engine) as session:
+        db_pedido = Pedido.model_validate(pedido)
+        productos = extrae_productos(db_pedido.producto)
+        db_output = create_db_output(db_pedido, productos)
+        session.add(db_pedido)
+        session.commit()
+        session.refresh(db_pedido)
+        
+        return db_output
