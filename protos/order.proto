@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option csharp_namespace = "OrderNotification.Protos";
+
+message ProductoPedido {
+  string productoId = 1;
+  int32 cantidad = 2;
+}
+
+message CreateOrderRequest {
+  string usuarioId = 1;
+  repeated ProductoPedido productos = 2;
+}
+
+message Order {
+  string id = 1;
+  string usuarioId = 2;
+  repeated ProductoPedido productos = 3;
+  string estado = 4;
+  string fechaCreacion = 5;
+  double total = 6;
+}
+
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (Order);
+}
