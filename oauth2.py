@@ -1,9 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 import jwt
 import datetime
-from datetime import timezone
 
 # Modelo de usuario y token
 class User(BaseModel):
@@ -26,6 +23,7 @@ class DataBase():
             "full_name": "Edgardo Scrimaglia",
             "email": "edscrimaglia@octupus.com",
             "hashed_password": "Iaew-2024$",
+            "Roles": "Manager",
             "disabled": False,
         }
     }
@@ -55,18 +53,3 @@ class Autenticator:
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, Autenticator.SECRET_KEY, algorithm=Autenticator.ALGORITHM)
         return encoded_jwt
-
-    # @classmethod
-    # def validate_expiration(cls, payload: dict):
-    #     expiration_timestamp = payload.get('exp')
-        
-    #     if expiration_timestamp is None:
-    #         raise ValueError("Expiration timestamp 'exp' no esxiste en el payload")
-        
-    #     #exp_time = datetime.datetime.fromtimestamp(expiration_timestamp, tz=timezone)
-    #     exp_time = exp_datetime = datetime.datetime.fromtimestamp(expiration_timestamp, datetime.timezone.utc)
-    #     #now_time_zone = datetime.datetime.now().replace(tzinfo=timezone)
-    #     now_time = datetime.datetime.now(datetime.timezone.utc)
-    #     if exp_datetime <= now_time:
-    #         return True
-    #     return False

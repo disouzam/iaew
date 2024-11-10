@@ -56,8 +56,21 @@ sqlite_url = f"sqlite:///{sqlite_file_name}"
 engine = create_engine(sqlite_url, echo=True)
 SQLModel.metadata.create_all(engine)
 
-# Rutas
+# Body to publish by publisher
+for_publishing = {
+        'id': '880e8400-e29b-41d4-a716-446655440000',
+        'usuarid': '550e8400-e29b-41d4-a716-446655440000',
+        'producto': [
+            {
+            'producto': '770e8400-e29b-41d4-a716-446655440000',
+            'cantidad': 2
+            }
+        ],
+        'creacion': '2023-10-01T16:00:00Z'
+    }
 
+
+# Rutas
 @app.post("/api/v1/pedido", tags=["Métodos principales"])
 def create_pedido(pedido: ProductoBase):
     def extrae_productos(producto_string: str):
@@ -88,16 +101,18 @@ def create_pedido(pedido: ProductoBase):
 
 
 @app.post("/api/v1/producer",tags=["Métodos principales"])
-def publish_pedido(body: str):
+def publish_pedido():
     try:
-        msg = json.loads(body)
-        result = rb.send_message(msg=body)
+        msg = json.dumps(for_publishing, indent=2)
+        result = rb.send_message(msg=msg)
         success, response_message = result
         if not success:
             msg = {"RabbitMQ": response_message}
-        return msg
+        return for_publishing
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Error al decodificar formato JSON")
+    except TypeError as err:
+        raise HTTPException(status_code=422, detail="Error de tipo: " + str(err))
     except Exception as err:
         raise HTTPException(status_code=500, detail=str(err))
     
