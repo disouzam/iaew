@@ -114,7 +114,7 @@ def publish_pedido():
     except TypeError as err:
         raise HTTPException(status_code=422, detail="Error de tipo: " + str(err))
     except Exception as err:
-        raise HTTPException(status_code=500, detail=str(err))
+        raise HTTPException(status_code=500, detail="Error: " + str(err))
     
 
 @app.get("/api/v1/pedidos", tags=["Métodos principales"])
