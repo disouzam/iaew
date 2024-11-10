@@ -169,7 +169,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": access_token, "token_type": "Bearer"}
 
 
-@app.get("/api/v1/costo", tags=["Sólo Documentación (user Postman con Auth2.0)"])
+@app.get("/api/v1/costo", tags=["Sólo Documentación (usar Postman con Auth2.0)"])
 async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
     def raise_credentials_exception(detail: str):
         raise HTTPException(
