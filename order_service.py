@@ -22,19 +22,19 @@ class OrderService(order_pb2_grpc.OrderServiceServicer):
         )
                 
         # Llamar a la función _create_pedido de main.py
-        pedido_creado = _create_pedido(pedido_data)
+        pedido_creado = _create_pedido(pedido_data, request.usuarioId)
 
         # Convertir y retornar el pedido en formato gRPC para la respuesta
         order = order_pb2.Order(
-            id=pedido_creado.id,
-            usuarioId=pedido_creado.userid,
+            id=pedido_creado['pedidoId'],
+            usuarioId=pedido_creado['userId'],
             productos=[
-                order_pb2.ProductoPedido(productoId=prod.producto, cantidad=int(prod.cantidad))
-                for prod in productos
+                order_pb2.ProductoPedido(productoId=prod['producto'], cantidad=int(prod['cantidad']))
+                for prod in pedido_creado['producto']
             ],
-            estado=pedido_creado.estado.value,
-            fechaCreacion=pedido_creado.creacion.isoformat(),
-            total=pedido_creado.total if pedido_creado.total is not None else 0.0
+            estado='CNF',
+            fechaCreacion=pedido_creado['creacion'].isoformat(),
+            total=pedido_creado['total'] if pedido_creado['total'] is not None else 0.0
         )
         return order
 

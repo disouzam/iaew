@@ -190,7 +190,7 @@ async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
 
     return db_output
 
-def _create_pedido(pedido: ProductoBase):
+def _create_pedido(pedido: ProductoBase, userid: str = None):
     def extrae_productos(producto_string: str):
         pattern = re.compile(r"Producto\(producto='(.*?)', cantidad=(.*?)\)")
         return [
@@ -209,8 +209,11 @@ def _create_pedido(pedido: ProductoBase):
     
     with Session(engine) as session:
         db_pedido = Pedido.model_validate(pedido)
+        db_pedido.userid = userid if userid else db_pedido.userid
+        
         productos = extrae_productos(db_pedido.producto)
         db_output = create_db_output(db_pedido, productos)
+        
         session.add(db_pedido)
         session.commit()
         session.refresh(db_pedido)
