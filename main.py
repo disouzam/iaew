@@ -82,9 +82,12 @@ def publish_pedido():
         msg = json.dumps(for_publishing, indent=2)
         result = rb.send_message(msg=msg)
         success, response_message = result
+        print (success, response_message)
         if not success:
             msg = {"RabbitMQ": response_message}
-        return for_publishing
+        else:
+            msg = for_publishing
+        return msg
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Error al decodificar formato JSON")
     except TypeError as err:
