@@ -120,10 +120,14 @@ async def pedidos_by_id(id: str):
         pedido = session.exec(select(Pedido).where(Pedido.id == id)).one_or_none()
 
     if pedido:
+        def parse_productos(produc: str) -> List[dict]:
+            pattern = re.compile(r"Producto\(producto='(.*?)', cantidad=(.*?)\)")
+            return [{"producto": match.group(1), "cantidad": float(match.group(2))}
+                    for match in pattern.finditer(produc)]
         return {
             "pedidoId": pedido.id,
             "userId": pedido.userid,
-            "producto": pedido.producto,
+            "producto": parse_productos(pedido.producto),
             "creacion": pedido.creacion,
             "total": pedido.total
         }
