@@ -37,7 +37,7 @@ import jwt
 class Autenticator:
     SECRET_KEY = "mi_clave_secreta"
     ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES = 3
 
     @classmethod
     def authentication(cls,db, username: str, password: str | None = None):

@@ -1,6 +1,10 @@
 # IAEW 2024 5K4
 
-## User Guide
+## Educational Proyect
+
+### Paydantic Validation
+
+To keep the database data consistent, Pydantic is used to validate both the request body before writing to the database and the response model to prevent invalid responses from endpoints.
 
 ### Run RabbitMQ container  
 
