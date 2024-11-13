@@ -25,25 +25,38 @@ class Estado(Enum):
     Confirmado = "CNF"
     Pendiente = "PND"
     Cancelado = "CAN"
+
 class Producto(BaseModel):
     producto: str = Field(default=uuid.uuid4())
     cantidad: float = Field(..., gt=0)
+
 class ProductoBase(BaseModel):
     producto: ValidList[Producto]
     estado: Estado | None = "CNF" 
     total: float | None = None
+
 class PedidoBase(SQLModel):
     producto: str
     estado: Estado | None = "CNF" 
     total: float | None = None
+
 class Pedido(PedidoBase, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
     userid: str = Field(default_factory=lambda: str(uuid.uuid4()))
     costo: float = Field(default=12.6)
     creacion: datetime.datetime = Field(default_factory=lambda: datetime.datetime.now(local_timezone))
+
 class PedidoPrecio(PedidoBase):
     userid: str = Field(default_factory=lambda: str(uuid.uuid4())) 
     costo: float = Field(default=12.6)
+
+class PedidoResponse(BaseModel):
+    pedidoId: str = Field(default=str(uuid.uuid4()))
+    userId: str = Field(default=str(uuid.uuid4()))
+    producto: list[Producto]
+    creacion: datetime.datetime = Field(default=lambda: datetime.datetime.now(local_timezone))
+    total: float
+
 
 app = FastAPI(title="IAEW", description="REST Full API TP - Grupo 1 - 2024", version="1.0.0")
 
@@ -69,11 +82,34 @@ for_publishing = {
         'creacion': '2023-10-01T16:00:00Z'
     }
 
-
 # Rutas
 @app.post("/api/v1/pedido", tags=["Métodos principales"])
-def create_pedido(pedido: PedidoBase):
-    return _create_pedido(pedido)
+def create_pedido(pedido: ProductoBase):
+    def extrae_productos(producto_string: str):
+        pattern = re.compile(r"Producto\(producto='(.*?)', cantidad=(.*?)\)")
+        return [
+            {"producto": match.group(1), "cantidad": float(match.group(2))}
+            for match in pattern.finditer(producto_string)
+        ]
+
+    def create_db_output(db_pedido, productos):
+        return {
+            "pedidoId": db_pedido.id,
+            "userId": db_pedido.userid,
+            "producto": productos,
+            "creacion": db_pedido.creacion,
+            "total": db_pedido.total
+        }
+    
+    with Session(engine) as session:
+        db_pedido = Pedido.model_validate(pedido)
+        productos = extrae_productos(db_pedido.producto)
+        db_output = create_db_output(db_pedido, productos)
+        session.add(db_pedido)
+        session.commit()
+        session.refresh(db_pedido)
+        
+        return db_output
 
 
 @app.post("/api/v1/producer",tags=["Métodos principales"])
@@ -96,7 +132,7 @@ def publish_pedido():
         raise HTTPException(status_code=500, detail="Error: " + str(err))
     
 
-@app.get("/api/v1/pedidos", tags=["Métodos principales"])
+@app.get("/api/v1/pedidos", response_model=list[PedidoResponse], tags=["Métodos principales"])
 def read_pedidos() -> List[dict]:
     with Session(engine) as session:
         registros_pedidos = session.exec(select(Pedido)).all()
@@ -117,8 +153,8 @@ def read_pedidos() -> List[dict]:
         return db_output
 
 
-@app.get("/api/v1/pedidos/{id}", tags=["Métodos principales"])
-async def pedidos_by_id(id: str):
+@app.get("/api/v1/pedido/{id}", tags=["Métodos principales"])
+async def pedido_by_id(id: str):
     with Session(engine) as session:
         pedido = session.exec(select(Pedido).where(Pedido.id == id)).one_or_none()
 
@@ -171,7 +207,7 @@ async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
         user = Autenticator.authentication(DataBase.users_db, username)
         token_data = User(username=username)
     except (jwt.PyJWTError, jwt.ExpiredSignatureError) as error:
-        raise_credentials_exception(str(error))
+        raise_credentials_exception("Could not validate credentials")
 
     user = DataBase.users_db.get(token_data.username)
     
@@ -196,30 +232,3 @@ async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
         } for reg in registros_pedidos]
 
     return db_output
-
-def _create_pedido(pedido: ProductoBase):
-    def extrae_productos(producto_string: str):
-        pattern = re.compile(r"Producto\(producto='(.*?)', cantidad=(.*?)\)")
-        return [
-            {"producto": match.group(1), "cantidad": float(match.group(2))}
-            for match in pattern.finditer(producto_string)
-        ]
-
-    def create_db_output(db_pedido, productos):
-        return {
-            "pedidoId": db_pedido.id,
-            "userId": db_pedido.userid,
-            "producto": productos,
-            "creacion": db_pedido.creacion,
-            "total": db_pedido.total
-        }
-    
-    with Session(engine) as session:
-        db_pedido = Pedido.model_validate(pedido)
-        productos = extrae_productos(db_pedido.producto)
-        db_output = create_db_output(db_pedido, productos)
-        session.add(db_pedido)
-        session.commit()
-        session.refresh(db_pedido)
-        
-        return db_output

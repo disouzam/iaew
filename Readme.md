@@ -2,6 +2,10 @@
 
 ## User Guide
 
+### Paydantic Validation
+
+
+
 ### Run RabbitMQ container  
 
 RabbitMQ is one of the most well-known message brokers for implementing the Producer/Consumer pattern.
