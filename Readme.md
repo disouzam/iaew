@@ -1,6 +1,6 @@
 # IAEW 2024 5K4
 
-## User Guide
+## Educational Proyect
 
 ### Paydantic Validation
 
