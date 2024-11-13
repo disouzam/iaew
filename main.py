@@ -236,7 +236,7 @@ async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
 
     return db_output
 
-@app.post("/start-order-service", tags=["Procesos"])
+@app.post("/api/v1/start-order-service", tags=["Procesos"])
 async def start_order_service():
     # Verifica si el archivo existe
     if not os.path.isfile(SCRIPT_PATH):
