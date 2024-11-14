@@ -23,7 +23,7 @@ class DataBase():
             "full_name": "Edgardo Scrimaglia",
             "email": "edscrimaglia@octupus.com",
             "hashed_password": "Iaew-2024$",
-            "Roles": "Manager",
+            "roles": ["Manager", "Developer"],
             "disabled": False,
         }
     }
@@ -35,7 +35,7 @@ import datetime
 import jwt 
 
 class Autenticator:
-    SECRET_KEY = "mi_clave_secreta"
+    SECRET_KEY = "588d27e4efad58a4260b8de9d12262467df10316ecf38d6c42d5202909d89c0b"
     ALGORITHM = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES = 3
 
@@ -48,7 +48,9 @@ class Autenticator:
 
     @classmethod
     def create_access_token(cls,data: dict, timezone, expires_delta: datetime.timedelta = 3600):
-        to_encode = data.copy()
+        to_encode = {}
+        to_encode.update({"sub": data.get("username")})
+        to_encode.update({"roles": data.get("roles")})
         expire = datetime.datetime.now(timezone) + expires_delta
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, Autenticator.SECRET_KEY, algorithm=Autenticator.ALGORITHM)

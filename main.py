@@ -187,7 +187,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = datetime.timedelta(minutes=Autenticator.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = Autenticator.create_access_token({"sub": user['username']}, local_timezone, access_token_expires)
+    #access_token = Autenticator.create_access_token({"sub": user['username']}, local_timezone, access_token_expires)
+    access_token = Autenticator.create_access_token(user, local_timezone, access_token_expires)
+
     return {"access_token": access_token, "token_type": "Bearer"}
 
 
@@ -236,21 +238,13 @@ async def read_costo_pedidos(token: str = Depends(oauth2_scheme)):
 
     return db_output
 
-@app.post("/api/v1/start-order-service", tags=["Procesos"])
+@app.post("/api/v1/start-order-service", tags=["Proceso gRPC"])
 async def start_order_service():
-    # Verifica si el archivo existe
     if not os.path.isfile(SCRIPT_PATH):
         raise HTTPException(status_code=404, detail="El archivo order_service.py no existe.")
 
-    # Chequea si el proceso ya está en ejecución
-    # if is_process_running("order_service.py"):
-    #     return {"message": "Ya hay una instancia de order_service.py en ejecución."}
-
     try:
-        # Usa 'python3' en lugar de 'python' para compatibilidad con Linux
-        command = f"python3 {SCRIPT_PATH}" if platform.system() != "Windows" else f"python {SCRIPT_PATH}"
-        
-        # Ejecuta el script en segundo plano usando Popen
+        command = f"python3 {SCRIPT_PATH}" if platform.system() != "Windows" else f"python {SCRIPT_PATH}" 
         process = subprocess.Popen(
             command,
             shell=True,
@@ -259,10 +253,7 @@ async def start_order_service():
             text=True
         )
 
-        # Captura de salida inicial sin bloquear
         stdout, stderr = process.communicate(timeout=1)
-
-        # Retorna el estado de ejecución
         if stderr:
             return {"output": stdout, "error": stderr}
 
