@@ -2,6 +2,10 @@
 
 ## Educational Proyect
 
+### FastApi
+
+Automation engineers often find themselves in situations where, to extract information, they need to write APIs to connect with applications that don't have public API schemas. This project, built using the FastAPI framework, is an example of how to build APIs integrating features like validation (Pydantic), authentication (OAuth2), publishing messages to a message broker (RabbitMQ), and running microservices via gRPC.
+
 ### Paydantic Validation
 
 To keep the database data consistent, Pydantic is used to validate both the request body before writing to the database and the response model to prevent invalid responses from endpoints.
