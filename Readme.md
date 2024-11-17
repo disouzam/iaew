@@ -57,4 +57,4 @@ Si se quiere ejecutar de forma manual:
 
 ### Postman
 
-In order to get Autenticated and Authorized, Postman must be used running Oauth2 Authentication. A collection is also available ready for import.
+To authenticate and authorize, Postman must be used with OAuth2 authentication. A ready-to-import collection is also available.
