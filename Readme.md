@@ -2,7 +2,7 @@
 
 ![plot](./figura/logo.png)
 
-## Educational Proyect
+## Educational Project
 
 ### FastApi
 
