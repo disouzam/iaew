@@ -43,6 +43,8 @@ Postman can then be used to generate the token and execute the requests with the
 
 ### Start gRPC server
 
+Remote Procedure Call (gRPC) is used to execute an insert service into de database.
+
 - Run the `start-service` endpoint:  
 - Test it in Postman using the URL `<http://localhost:50051>` by importing the protobuf file from `order.proto`.  
 
