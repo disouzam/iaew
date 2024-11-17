@@ -1,8 +1,7 @@
-# Consumer
+# RabbitMQ Consumer
 # By Ed Scrimaglia
 
 import pika
-
 used_queue = 'cola_test'
 
 def callback(ch, method, properties, body):
@@ -10,7 +9,11 @@ def callback(ch, method, properties, body):
 
 def consume_messages():
     try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        remote_host = '127.0.0.1'
+        username = 'guest' 
+        password = 'guest'
+        credentials = pika.PlainCredentials(username, password)
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=remote_host, credentials=credentials))
         channel = connection.channel()
 
         channel.queue_declare(queue=used_queue)

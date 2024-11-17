@@ -1,0 +1,259 @@
+{
+	"info": {
+		"_postman_id": "8112b863-3dfd-4825-ab54-28e9c6697564",
+		"name": "tp-iaew",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2403315"
+	},
+	"item": [
+		{
+			"name": "Agrega un pedido",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"producto\": \"P5\",\n    \"estado\": \"CAN\",\n    \"total\": 11\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/v1/pedido",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"pedido"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get todos los pedidos",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"producto\": [\n    {\n      \"producto\": \"3e61e497-9d10-4c71-9fd4-b124ccd46e11\",\n      \"cantidad\": 1.5\n    },\n    {\n      \"producto\": \"3e61e497-9d10-4c71-9fd4-b124ccd46e13\",\n      \"cantidad\": 1.5\n    }\n  ],\n  \"estado\": \"CNF\",\n  \"total\": 3,\n  \"costo\": 20\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/v1/pedidos",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"pedidos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Pedidos con costo",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "tokenName",
+							"value": "Token Name",
+							"type": "string"
+						},
+						{
+							"key": "tokenType",
+							"value": "bearer",
+							"type": "string"
+						},
+						{
+							"key": "refresh_token",
+							"type": "any"
+						},
+						{
+							"key": "token_id",
+							"value": "01e5f051-fe8e-4ed8-99e9-cf4e7812d8eb",
+							"type": "string"
+						},
+						{
+							"key": "accessToken",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlZHNjcmltYWdsaWEiLCJleHAiOjE3MzA3MjYzMTh9.JoE5_apweFvqZQ99dOQtsVH2LuqouJRzLYrmAY0G6hg",
+							"type": "string"
+						},
+						{
+							"key": "expires_in",
+							"type": "any"
+						},
+						{
+							"key": "timestamp",
+							"value": 1730735318257,
+							"type": "number"
+						},
+						{
+							"key": "clientId",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "Iaew-2024$",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "localhost:8000/api/v1/token",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "edscrimaglia",
+							"type": "string"
+						},
+						{
+							"key": "grant_type",
+							"value": "password_credentials",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "id",
+							"value": "request/89b5a794-af42-4877-bf23-3b3f9325ae93/991d0c0b-5011-42d7-888c-f8d58bb8dd97",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/v1/costo",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"costo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Publish object in RabbitMQ",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "username",
+							"value": "operator",
+							"type": "string"
+						},
+						{
+							"key": "clientId",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "Iaew-2024$",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "localhost:8000/api/v1/token",
+							"type": "string"
+						},
+						{
+							"key": "grant_type",
+							"value": "password_credentials",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/api/v1/producer",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"producer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start gRPC Service",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/api/v1/start-service",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"start-service"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Pedido by Id",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}

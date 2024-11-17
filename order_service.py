@@ -5,7 +5,6 @@ from sqlmodel import Session
 import order_pb2
 import order_pb2_grpc
 from main import ProductoBase, Producto, Estado, engine, Pedido
-from custom_validation import ValidateListToStr
 
 # Clase gRPC para implementar el servicio
 class OrderService(order_pb2_grpc.OrderServiceServicer):

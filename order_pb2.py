@@ -21,9 +21,6 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 
 _sym_db = _symbol_database.Default()
 
-
-
-
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0border.proto\"6\n\x0eProductoPedido\x12\x12\n\nproductoId\x18\x01 \x01(\t\x12\x10\n\x08\x63\x61ntidad\x18\x02 \x01(\x05\"K\n\x12\x43reateOrderRequest\x12\x11\n\tusuarioId\x18\x01 \x01(\t\x12\"\n\tproductos\x18\x02 \x03(\x0b\x32\x0f.ProductoPedido\"\x80\x01\n\x05Order\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tusuarioId\x18\x02 \x01(\t\x12\"\n\tproductos\x18\x03 \x03(\x0b\x32\x0f.ProductoPedido\x12\x0e\n\x06\x65stado\x18\x04 \x01(\t\x12\x15\n\rfechaCreacion\x18\x05 \x01(\t\x12\r\n\x05total\x18\x06 \x01(\x01\x32:\n\x0cOrderService\x12*\n\x0b\x43reateOrder\x12\x13.CreateOrderRequest\x1a\x06.OrderB\x1b\xaa\x02\x18OrderNotification.Protosb\x06proto3')
 
 _globals = globals()

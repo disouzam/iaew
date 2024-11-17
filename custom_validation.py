@@ -23,6 +23,7 @@ class ValidateUniqueInList():
                 unique_list.append(ele)
         return lista
 
+
 class ValidateDate():
     @classmethod
     def make_utc(cls, dt: datetime) -> datetime:
@@ -46,7 +47,8 @@ class ValidateDate():
         if info.mode_is_json():
             return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
         return dt
-    
+
+ 
 class ValidateListToStr():
     @classmethod
     @validate_call

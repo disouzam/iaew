@@ -20,9 +20,9 @@ docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
 - `-p 15672:15672`: Exposes port 15672 for RabbitMQ's web management interface.
 - `rabbitmq:management`: Official RabbitMQ image.
 
-### OAuth2 Simulation
+### Oauth2 Simulation
 
-The authentication is performed using a user database that simulates an Identity Provider (IdP) and the jwt library to encode and decode the JWT (JSON Web Token). The token is created, create_access_token method, based on information from the user database.
+The authentication is performed using two dictionaries that simulate an Identity Provider (IdP), Users and API Registration and the jwt library to encode and decode the JWT (JSON Web Token). The token is created, based on information from the user, roles and expiration time.
 
 Postman can then be used to generate the token and execute the GET request with that token. The endpoint /api/v1/costo returns cost information, which is only accessible if a valid JWT token is provided.
 
@@ -45,6 +45,10 @@ Si se quiere ejecutar de forma manual:
 - python order_service.py
 - gRPC server en localhost, port 50051
 
-### Run Application
+### Run Application Documentation
 
 - <http://localhost:8000/docs>
+
+### Postman
+
+In order to get Autenticated and Authorized, Postman must be used running Oauth2 Authentication. A collection is also available ready for import.
