@@ -43,13 +43,13 @@ Postman can then be used to generate the token and execute the GET request with 
 
 ### Start gRPC server
 
-- Ejecuta el endpoint start-order-service
-- Se prueba en postman en con la url <http://localhost:50051> e importando el protobuf de protos/order.proto
+- Run the `start-service` endpoint:  
+- Test it in Postman using the URL `<http://localhost:50051>` by importing the protobuf file from `order.proto`.  
 
-Si se quiere ejecutar de forma manual:
+To run it manually:  
 
 - python order_service.py
-- gRPC server en localhost, port 50051
+- The gRPC server will run on localhost, port 50051.  
 
 ### Run Application Documentation
 
