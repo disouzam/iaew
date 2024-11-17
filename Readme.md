@@ -1,5 +1,7 @@
 # FastAPi, Pydantic, RabbitMQ and Oauth2
 
+![plot](./figura/Grafo.png)
+
 ## Educational Proyect
 
 ### FastApi
