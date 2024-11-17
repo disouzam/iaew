@@ -30,7 +30,7 @@ docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
 
 The authentication is performed on an API endpoint basis using two dictionaries that simulate an Identity Provider (IdP): Users and API Registration, along with the `jwt` library to encode and decode the JWT (JSON Web Token). The token is created based on the user's information, roles, and expiration time.
 
-Postman can then be used to generate the token and execute the GET request with the token. The /api/v1/costo endpoint returns cost information, which is only accessible if a valid JWT token is provided.
+Postman can then be used to generate the token and execute the requests with the token. The /api/v1/costo endpoint returns cost information, which is only accessible if a valid JWT token is provided.
 
 ### Run Consummer on localhost
 
