@@ -1,4 +1,4 @@
-# IAEW 2024 5K4
+# FastAPi, Pydantic, RabbitMQ and Oauth2
 
 ## Educational Proyect
 
