@@ -1,4 +1,4 @@
-# FastAPi, Pydantic, RabbitMQ and Oauth2
+# FastAPi, Pydantic, RabbitMQ, gRPC  and Oauth2
 
 ![plot](./figura/logo.png)
 
