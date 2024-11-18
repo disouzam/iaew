@@ -4,7 +4,8 @@ from concurrent import futures
 from sqlmodel import Session
 import order_pb2
 import order_pb2_grpc
-from main import ProductoBase, Producto, Estado, engine, Pedido
+from model import ProductoBase, Producto, Estado, Pedido
+from main import engine
 
 # Clase gRPC para implementar el servicio
 class OrderService(order_pb2_grpc.OrderServiceServicer):
@@ -19,7 +20,7 @@ class OrderService(order_pb2_grpc.OrderServiceServicer):
         pedido_data = ProductoBase(
             producto=productos,
             estado=Estado.Confirmado,
-            total=None
+            total=5
         )
                 
         # Llamar a la función _create_pedido de main.py

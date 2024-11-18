@@ -1,4 +1,3 @@
-
 # RabbitMQ Producer
 # By Ed Scrimaglia
 

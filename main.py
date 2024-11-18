@@ -4,62 +4,20 @@ import datetime
 import os
 import platform
 import subprocess
-import uuid
-from pydantic import AfterValidator, BaseModel
 from fastapi import FastAPI, HTTPException, Depends, status, Request
-from sqlmodel import Field, SQLModel, create_engine, Session, select
+from sqlmodel import SQLModel, create_engine, Session, select
 import rabbitmq as rb
-from oauth2 import OauthDb, Token, Oauth2
+from oauth2 import Token, Oauth2
 import json
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import pytz
-from typing import TypeVar, Annotated, List
-from custom_validation import ValidateListToStr
-from enum import Enum
+from typing import List
 import re
+from model import ProductoBase, Pedido, PedidoResponse, PedidoPrecioResponse
 
+# Set Local Time Zone
 local_timezone = pytz.timezone('America/Argentina/Buenos_Aires')
 SCRIPT_PATH = "./order_service.py"
-
-# Annotated para usar en ValidateListToStr
-T = TypeVar('T')
-ValidList = Annotated[list[T], AfterValidator(ValidateListToStr.convert_list_to_str)]
-
-class Estado(Enum):
-    Confirmado = "CNF"
-    Pendiente = "PND"
-    Cancelado = "CAN"
-
-class Producto(BaseModel):
-    producto: str = Field(default=uuid.uuid4())
-    cantidad: float = Field(..., gt=0)
-
-class ProductoBase(BaseModel):
-    producto: ValidList[Producto]
-    estado: Estado | None = "CNF" 
-    total: float | None = None
-
-class PedidoBase(SQLModel):
-    producto: str
-    estado: Estado | None = "CNF" 
-    total: float | None = None
-
-class Pedido(PedidoBase, table=True):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
-    userid: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    costo: float = Field(default=12.6)
-    creacion: datetime.datetime = Field(default_factory=lambda: datetime.datetime.now(local_timezone))
-
-class PedidoPrecio(PedidoBase):
-    userid: str = Field(default_factory=lambda: str(uuid.uuid4())) 
-    costo: float = Field(default=12.6)
-
-class PedidoResponse(BaseModel):
-    pedidoId: str = Field(default=str(uuid.uuid4()))
-    userId: str = Field(default=str(uuid.uuid4()))
-    producto: list[Producto]
-    creacion: datetime.datetime = Field(default=lambda: datetime.datetime.now(local_timezone))
-    total: float
 
 # Starting FastApi
 app = FastAPI(title="IAEW", description="REST Full API TP - Grupo 1 - 2024", version="12.0.0", summary="Use Oauth2 in Postman for Authentication and Authorization")
@@ -73,11 +31,11 @@ sqlite_url = f"sqlite:///{sqlite_file_name}"
 engine = create_engine(sqlite_url, echo=True)
 SQLModel.metadata.create_all(engine)
 
-# Instancing Oauth2
-oauth = Oauth2(algorithm="HS256",expires=3)
+# Instanciando Class Oauth2
+oauth = Oauth2(algorithm="HS256",expires=5)
 
 # API Endpoints
-@app.post("/api/v1/pedido", tags=["API Endpoints"])
+@app.post("/api/v1/pedido", response_model=Pedido, tags=["API Endpoints"])
 def create_pedido(request: Request, pedido: ProductoBase, token: str = Depends(Oauth2_scheme)):
     oauth.authorization(request.url.path, token)
     
@@ -93,6 +51,7 @@ def create_pedido(request: Request, pedido: ProductoBase, token: str = Depends(O
             "pedidoId": db_pedido.id,
             "userId": db_pedido.userid,
             "producto": productos,
+            "estado": db_pedido.estado,
             "creacion": db_pedido.creacion,
             "total": db_pedido.total
         }
@@ -146,13 +105,14 @@ def read_pedidos(request: Request, token: str = Depends(Oauth2_scheme)) -> List[
             "userId": reg.userid,
             "producto": parse_productos(reg.producto),
             "creacion": reg.creacion,
+            "estado": reg.estado,
             "total": reg.total
         } for reg in registros_pedidos]
 
         return db_output
 
 
-@app.get("/api/v1/pedidos/{id}", tags=["API Endpoints"])
+@app.get("/api/v1/pedidos/{id}", response_model=Pedido, tags=["API Endpoints"])
 async def pedido_by_id(request: Request, id: str, token: str = Depends(Oauth2_scheme)):
     base_url = request.url.path.rsplit("/", 1)[0]
     oauth.authorization(base_url, token)
@@ -191,7 +151,7 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
     return {"access_token": access_token, "token_type": "Bearer"}
 
 
-@app.get("/api/v1/costo", tags=["API Endpoints"])
+@app.get("/api/v1/costo", response_model=list[PedidoPrecioResponse], tags=["API Endpoints"])
 async def read_costo_pedidos(request: Request, token: str = Depends(Oauth2_scheme)):
     oauth.authorization(request.url.path, token)
 
