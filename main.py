@@ -36,7 +36,7 @@ oauth = Oauth2(algorithm="HS256",expires=5)
 
 # API Endpoints
 @app.post("/api/v1/pedido", response_model=Pedido, tags=["API Endpoints"])
-def create_pedido(request: Request, pedido: ProductoBase, token: str = Depends(Oauth2_scheme)):
+async def create_pedido(request: Request, pedido: ProductoBase, token: str = Depends(Oauth2_scheme)):
     oauth.authorization(request.url.path, token)
     
     def extrae_productos(producto_string: str):
@@ -68,7 +68,7 @@ def create_pedido(request: Request, pedido: ProductoBase, token: str = Depends(O
 
 
 @app.post("/api/v1/producer",tags=["RabbitMQ Process"])
-def publish_pedido(request: Request, token: str = Depends(Oauth2_scheme)):
+async def publish_pedido(request: Request, token: str = Depends(Oauth2_scheme)):
     oauth.authorization(request.url.path, token)
 
     try:
@@ -89,7 +89,7 @@ def publish_pedido(request: Request, token: str = Depends(Oauth2_scheme)):
     
 
 @app.get("/api/v1/pedidos", response_model=list[PedidoResponse], tags=["API Endpoints"])
-def read_pedidos(request: Request, token: str = Depends(Oauth2_scheme)) -> List[dict]:
+async def read_pedidos(request: Request, token: str = Depends(Oauth2_scheme)) -> List[dict]:
     oauth.authorization(request.url.path, token)
 
     with Session(engine) as session:
