@@ -14,6 +14,7 @@ import pytz
 from typing import List
 import re
 from model import ProductoBase, Pedido, PedidoResponse, PedidoPrecioResponse
+from typing import Annotated
 
 # Set Local Time Zone
 local_timezone = pytz.timezone('America/Argentina/Buenos_Aires')
@@ -36,7 +37,7 @@ oauth = Oauth2(algorithm="HS256",expires=5)
 
 # API Endpoints
 @app.post("/api/v1/pedido", response_model=Pedido, tags=["API Endpoints"])
-async def create_pedido(request: Request, pedido: ProductoBase, token: str = Depends(Oauth2_scheme)):
+async def create_pedido(request: Request, pedido: ProductoBase, token: Annotated[str, Depends(Oauth2_scheme)]):
     oauth.authorization(request.url.path, token)
     
     def extrae_productos(producto_string: str):
@@ -68,7 +69,7 @@ async def create_pedido(request: Request, pedido: ProductoBase, token: str = Dep
 
 
 @app.post("/api/v1/producer",tags=["RabbitMQ Process"])
-async def publish_pedido(request: Request, token: str = Depends(Oauth2_scheme)):
+async def publish_pedido(request: Request, token: Annotated[str, Depends(Oauth2_scheme)]):
     oauth.authorization(request.url.path, token)
 
     try:
@@ -89,7 +90,7 @@ async def publish_pedido(request: Request, token: str = Depends(Oauth2_scheme)):
     
 
 @app.get("/api/v1/pedidos", response_model=list[PedidoResponse], tags=["API Endpoints"])
-async def read_pedidos(request: Request, token: str = Depends(Oauth2_scheme)) -> List[dict]:
+async def read_pedidos(request: Request, token: Annotated[str, Depends(Oauth2_scheme)]):
     oauth.authorization(request.url.path, token)
 
     with Session(engine) as session:
@@ -113,7 +114,7 @@ async def read_pedidos(request: Request, token: str = Depends(Oauth2_scheme)) ->
 
 
 @app.get("/api/v1/pedidos/{id}", response_model=Pedido, tags=["API Endpoints"])
-async def pedido_by_id(request: Request, id: str, token: str = Depends(Oauth2_scheme)):
+async def pedido_by_id(request: Request, id: str, token: Annotated[str, Depends(Oauth2_scheme)]):
     base_url = request.url.path.rsplit("/", 1)[0]
     oauth.authorization(base_url, token)
     
@@ -152,7 +153,7 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
 
 
 @app.get("/api/v1/costo", response_model=list[PedidoPrecioResponse], tags=["API Endpoints"])
-async def read_costo_pedidos(request: Request, token: str = Depends(Oauth2_scheme)):
+async def read_costo_pedidos(request: Request, token: Annotated[str, Depends(Oauth2_scheme)]):
     oauth.authorization(request.url.path, token)
 
     with Session(engine) as session:
